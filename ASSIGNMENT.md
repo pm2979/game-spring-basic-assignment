@@ -86,6 +86,81 @@
 ### Lv 7. 목록·상세 조회: 저장된 여정 이어하기 `필수`
 
 **API 명세 → [게임 목록 조회 `GET /games`](https://f-api.github.io/game-spring-api-docs/basic/api-docs.html#tag/게임/operation/getGames), [게임 상세 조회 `GET /games/{gameId}`](https://f-api.github.io/game-spring-api-docs/basic/api-docs.html#tag/게임/operation/getGame)**
+Lv7에서는 API 문서 대신, 아래의 토글 목록 API 명세를 사용합니다.
+- **게임 목록 조회 `GET /games`** — 성공 `200`, `Game`의 `id` 기준 내림차순 배열
+
+
+    | 필드 | 타입 | 설명 |
+    | --- | --- | --- |
+    | `id` | 숫자 | 게임 ID |
+    | `playerName` | 문자열 | 플레이어 이름 |
+    | `currentFloor` | 숫자 | 현재 층 |
+    | `currentHp` | 숫자 | 현재 HP |
+    | `phase` | 문자열 | `BATTLE`, `REWARD`, `FINISHED` 중 하나 |
+    | `status` | 문자열 | `PLAYING`, `CLEARED`, `FAILED` 중 하나 |
+    - Example Response
+        
+        ```json
+        [
+          {
+            "id": 2,
+            "playerName": "붉은 순례자",
+            "currentFloor": 7,
+            "currentHp": 0,
+            "phase": "FINISHED",
+            "status": "FAILED"
+          },
+          {
+            "id": 1,
+            "playerName": "밤의 후계자",
+            "currentFloor": 2,
+            "currentHp": 84,
+            "phase": "BATTLE",
+            "status": "PLAYING"
+          }
+        ]
+        ```
+
+- **게임 상세 조회 `GET /games/{gameId}`** — 성공 `200`, 없는 ID는 `404`
+
+
+    | 필드 | 타입 | 설명 |
+    | --- | --- | --- |
+    | `id` | 숫자 | 게임 ID |
+    | `playerName` | 문자열 | 플레이어 이름 |
+    | `currentHp` | 숫자 | 현재 HP |
+    | `currentFloor` | 숫자 | 현재 층 |
+    | `phase` | 문자열 | `BATTLE`, `REWARD`, `FINISHED` 중 하나 |
+    | `status` | 문자열 | `PLAYING`, `CLEARED`, `FAILED` 중 하나 |
+    | `deck` | 배열 | 전체 덱. `RunCard`의 `id` 기준 오름차순 |
+    | `deck[].id` | 숫자 | 카드 ID |
+    | `deck[].cardType` | 문자열 | 카드 타입 |
+    | `deck[].acquiredFloor` | 숫자 | 카드를 얻은 층. 시작 덱은 `0` |
+    - Example Response
+        
+        ```json
+        {
+          "id": 1,
+          "playerName": "밤의 후계자",
+          "currentHp": 84,
+          "currentFloor": 2,
+          "phase": "BATTLE",
+          "status": "PLAYING",
+          "deck": [
+            { "id": 12, "cardType": "STRIKE", "acquiredFloor": 0 },
+            { "id": 13, "cardType": "STRIKE", "acquiredFloor": 0 },
+            { "id": 14, "cardType": "HEART_PIERCE", "acquiredFloor": 0 },
+            { "id": 15, "cardType": "GUARD", "acquiredFloor": 0 },
+            { "id": 16, "cardType": "MIST_KNOT", "acquiredFloor": 0 },
+            { "id": 17, "cardType": "QUICK_SLASH", "acquiredFloor": 0 },
+            { "id": 18, "cardType": "WARDING_SLASH", "acquiredFloor": 0 },
+            { "id": 19, "cardType": "BLOOD_RUNE", "acquiredFloor": 0 },
+            { "id": 20, "cardType": "MEND", "acquiredFloor": 0 },
+            { "id": 21, "cardType": "SUNDER", "acquiredFloor": 0 },
+            { "id": 22, "cardType": "IRON_WALL", "acquiredFloor": 1 }
+          ]
+        }
+        ```
 
 - [ ]  Spring Data JPA가 커스텀 쿼리 메서드로 정렬 조회를 만들어 주는 규칙(OrderBy, Asc, Desc)을 직접 검색해서 공부하시고 문제를 풀어주세요.
 - [ ]  아래의 코드를 이용하여 게임 목록 조회 API를 구현하세요. 응답 DTO `GameSummaryResponse`는 API 명세를 보고 새로 만듭니다. 게임 목록은 `Game`의 `id` 기준 내림차순입니다.
