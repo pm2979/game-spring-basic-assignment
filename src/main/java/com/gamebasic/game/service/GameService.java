@@ -1,5 +1,7 @@
 package com.gamebasic.game.service;
 
+import com.gamebasic.common.exception.GameFinishedException;
+import com.gamebasic.common.exception.GameNotFoundException;
 import com.gamebasic.game.dto.CreateRequest;
 import com.gamebasic.game.dto.GameDetailResponse;
 import com.gamebasic.game.dto.GameSummaryResponse;
@@ -12,10 +14,8 @@ import com.gamebasic.runcard.dto.RunCardRequest;
 import com.gamebasic.runcard.entity.RunCard;
 import com.gamebasic.runcard.repository.RunCardRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class GameService {
 
     private Game findGame(Long gameId) {
         return gameRepository.findById(gameId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class GameService {
         Game game = findGame(gameId);
 
         if(game.isFinished()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new GameFinishedException(gameId);
         }
 
         game.updateProgress(
