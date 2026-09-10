@@ -10,6 +10,7 @@ import com.gamebasic.game.dto.RenameRequest;
 import com.gamebasic.game.entity.Game;
 import com.gamebasic.game.repository.GameRepository;
 import com.gamebasic.runcard.dto.CardResponse;
+import com.gamebasic.runcard.dto.DeckCountResponse;
 import com.gamebasic.runcard.dto.RunCardRequest;
 import com.gamebasic.runcard.entity.RunCard;
 import com.gamebasic.runcard.repository.RunCardRepository;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -96,6 +99,11 @@ public class GameService {
     @Transactional(readOnly = true)
     public List<GameSummaryResponse> getGames() {
         List<Game> games = gameRepository.findAllByOrderByIdDesc();
+
+        Map<Long, Long> deckSizeByGameId = runCardRepository.countAllGroupByGame()  // 쿼리 1회 (총 2회)
+                .stream()
+                .collect(Collectors.toMap(DeckCountResponse::getGameId, DeckCountResponse::getDeckSize));
+
         List<GameSummaryResponse> result = new ArrayList<>();
         for(Game game : games) {
              result.add(new GameSummaryResponse(
@@ -104,7 +112,10 @@ public class GameService {
                      game.getCurrentHp(),
                      game.getCurrentFloor(),
                      game.getPhase(),
-                     game.getStatus()
+                     game.getStatus(),
+                     game.getCreatedAt(),
+                     game.getUpdatedAt(),
+                     deckSizeByGameId.getOrDefault(game.getId(), 0L)
              ));
         }
 
